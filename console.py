@@ -137,7 +137,6 @@ class HBNBCommand(cmd.Cmd):
             param['updated_at'] = datetime.now().isoformat()
             param['created_at'] = datetime.now().isoformat()
             param['__class__'] = cls_name
-            print(param)
 
         new_instance = HBNBCommand.classes[cls_name](**param)
         storage.save()
