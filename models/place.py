@@ -1,17 +1,9 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-from os import getenv
-from sqlalchemy.orm import relationship
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime, Table  # noqa
-
-place_amenity = Table('place_amenity', Base.metadata,
-                      Column('place_id', String(60), ForeignKey('places.id'),
-                             primary_key=True, nullable=False),
-                      Column('amenity_id', String(60),
-                             ForeignKey('amenities.id'), primary_key=True,
-                             nullable=False)
-                      )
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
+from os import getenv
 
 
 class Place(BaseModel, Base):
@@ -31,10 +23,7 @@ class Place(BaseModel, Base):
         price_by_night = Column(Integer, nullable=False, default=0)
         latitude = Column(Float)
         longitude = Column(Float)
-        amenities = relationship("Amenity", backref="place_amenities",
-                                 secondary='place_amenity', viewonly=False)
-        reviews = relationship(
-            "Review", backref="places", cascade="all, delete")
+        amenity_ids = []
 
     else:
         city_id = ""
@@ -48,36 +37,3 @@ class Place(BaseModel, Base):
         latitude = 0.0
         longitude = 0.0
         amenity_ids = []
-
-    @property
-    def reviews(self):
-        """
-        Returns the list of Review instances with place_id equals to the
-        current Place.id => It will be the FileStorage relationship between
-        Place and Review
-        """
-        from models import storage
-        reviews = []
-        for review in storage.all("Review").values():
-            if review.place_id == self.id:
-                reviews.append(review)
-        return reviews
-
-    @property
-    def amenities(self):
-        """
-        returns the list of Amenity instances based on the attribute
-        amenity_ids that contains all Amenity.id linked to the Place
-        """
-        from models import storage
-        amenities = []
-        for amenity in storage.all("Amenity").values():
-            if amenity.place_id == self.id:
-                amenities.append(amenity)
-        return amenities
-
-    @amenities.setter
-    def amenities(self, obj=None):
-        """ Adding an Amenity.id to the attribute amenity_ids """
-        if isinstance(obj, Amenity) and obj.id not in self.amenity_ids:
-            self.amenity_ids.append(obj.id)
