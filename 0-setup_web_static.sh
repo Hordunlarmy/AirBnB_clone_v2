@@ -7,7 +7,26 @@ mkdir -p /data/web_static/releases/
 mkdir -p /data/web_static/shared/
 mkdir -p /data/web_static/releases/test/
 echo "<h1>Hello World</h1>" > /data/web_static/releases/test/index.html
-ln -s -f /data/web_static/releases/test/ /data/web_static/current
+ln -sf /data/web_static/releases/test /data/web_static/current
 chown -R ubuntu:ubuntu /data/
-sed -i '/listen 80 default_server/a location /hbnb_static {/n/t/t alias /data/web_static/current/;/n}' /etc/nginx/sites-available/hordun.tech
+config_content="
+server{
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name _;
+
+    location /hbnb_static {
+        alias /data/web_static/current;
+        index index.html index.htm;
+    }
+
+    error_page 404 /404.html;
+        location /404 {
+                root /var/www/html;
+                internal;
+    }
+
+}"
+echo "$config_content" > /etc/nginx/sites-available/default
 sudo service nginx restart
