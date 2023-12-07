@@ -19,13 +19,14 @@ def do_deploy(archive_path):
         put(archive_path, '/tmp/')
         filename = archive_path[9:-4]
 
-        run(f'sudo mkdir -p /data/web_static/releases/{filename}')
+        run(f'sudo mkdir -p /data/web_static/releases/{filename}/')
         run(f'sudo tar -xzf /tmp/{filename}.tgz -C \
                 /data/web_static/releases/{filename}/')
+        run(f'sudo rm /tmp/{filename}.tgz')
         run(f'sudo mv /data/web_static/releases/{filename}/web_static/* \
                 /data/web_static/releases/{filename}/')
-        run('sudo rm -f /tmp/{filename}.tgz')
-        run('sudo rm -rf /data/web_static/current')
+        run(f'sudo rm -rf /data/web_static/releases/{filename}/web_static')
+        run(f'sudo rm -rf /data/web_static/current')
         run(f'sudo ln -sf /data/web_static/releases/{filename}/ \
                 /data/web_static/current')
 
