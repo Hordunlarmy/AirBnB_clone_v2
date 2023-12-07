@@ -7,16 +7,14 @@ import os
 
 def do_pack():
     """ generates a .tgz archive from the contents of the web_static """
-    try:
-        now = datetime.now()
-        filename = "web_static_{}.tgz".format(
-            now.strftime("%Y%m%d%H%M%S")
-        )
-        local("mkdir versions")
-        path = local(f"tar -cvzf versions/{filename} web_static")
-        file_path = f"versions/{filename}"
+
+    now = datetime.now().strftime('%Y%m%d%H%M%S')
+    file_path = 'versions/web_static_{}.tgz'.format(now)
+
+    local('mkdir -p versions/')
+    output = local('tar -cvzf {} web_static/'.format(file_path))
+
+    if output.succeeded:
         file_size = os.path.getsize(file_path)
-        print(f"web_static packed: versions/{filename} -> {file_size}Bytes")
+        print(f"web_static packed: {file_path} -> {file_size}Bytes")
         return file_path
-    except Exception as e:
-        return None
