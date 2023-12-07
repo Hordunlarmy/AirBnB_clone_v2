@@ -9,7 +9,7 @@ def do_pack():
     a Fabric script that generates a .tgz archive from the contents of
     the web_static
     """
-     try:
+    try:
         now = datetime.now()
         filename = f"web_static_{now.strftime('%Y%m%d%H%M%S')}.tgz"
         local("mkdir -p versions")
