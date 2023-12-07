@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 from fabric.api import local
-from time import strftime
-from datetime import date
+from datetime import datetime
 
 
 def do_pack():
@@ -15,7 +14,7 @@ def do_pack():
             now.strftime("%Y%m%d%H%M%S")
         )
         local("mkdir versions")
-        path = local("tar -cvzf {} web_static".format(filename))
+        path = local(f"tar -cvzf {filename} web_static")
         return path
     except Exception as e:
         return None
