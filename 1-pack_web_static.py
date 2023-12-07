@@ -11,11 +11,11 @@ def do_pack():
     """
     try:
         now = datetime.now()
-        filename = f"web_static_{now.strftime('%Y%m%d%H%M%S')}.tgz"
-        local("mkdir -p versions")
-        path = local(f"tar -czvf versions/{filename} web_static/")
-
+        filename = "web_static_{}.tgz".format(
+            now.strftime("%Y%m%d%H%M%S")
+        )
+        local("mkdir versions")
+        path = local("tar -cvzf {} web_static".format(filename))
         return path
-
     except Exception as e:
         return None
