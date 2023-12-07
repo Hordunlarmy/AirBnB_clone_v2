@@ -14,7 +14,7 @@ def do_pack():
             now.strftime("%Y%m%d%H%M%S")
         )
         local("mkdir versions")
-        path = local(f"tar -cvzf {filename} web_static")
+        path = local(f"tar -cvzf versions/{filename} web_static")
         return path
     except Exception as e:
         return None
