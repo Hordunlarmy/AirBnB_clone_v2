@@ -9,30 +9,16 @@ Example:
     fab -f 2-do_deploy_web_static.py do_deploy:
     archive_path=versions/web_static_20170315003959.tgz -i my_ssh_private_key
 """
+
 import os.path
-from fabric.api import env, put, run, local
-from datetime import datetime
+from fabric.api import env, put, run
 
 env.user = "ubuntu"
 env.hosts = ["34.75.10.160", "35.231.86.187"]
 
 
-def do_pack():
-    """Generates .tgz archive from the contents of /web_static
-       returns archive's path if successful and None if not
-    """
-    now = datetime.now().strftime('%Y%m%d%H%M%S')
-    filePath = 'versions/web_static_{}.tgz'.format(now)
-
-    local('mkdir -p versions/')
-    createArchive = local('tar -cvzf {} web_static/'.format(filePath))
-
-    if createArchive.succeeded:
-        return filePath
-
-
 def do_deploy(archive_path):
-    """Distributes an archive to a web server
+    """Distributes an archive to a web server.
        Returns True if successful and false if not
     """
     if os.path.isfile(archive_path) is False:
@@ -68,16 +54,16 @@ def do_deploy(archive_path):
         print("Deleting archive from /tmp/ directory dailed")
         return False
 
-    # Move folder from web_static to its parent folder, to expose
-    # the index files outsite the /we_static path
+    # Move folder from web_static to its parent folder,to expose the index
+    # files outsite the /we_static path
     if run("mv /data/web_static/releases/{}/web_static/* "
            "/data/web_static/releases/{}/".
            format(folder, folder)).failed is True:
         print("Moving content to archive folder before deletion failed")
         return False
 
-    # Delete the empty web_static file, as its content have been moved
-    # to its parent directory
+    # Delete the empty web_static file, as its content have been moved to
+    # its parent directory
     if run("rm -rf /data/web_static/releases/{}/web_static".
            format(folder)).failed is True:
         print("Deleting web_static folder failed")
@@ -96,11 +82,3 @@ def do_deploy(archive_path):
 
     print("New version deployed!")
     return True
-
-
-def deploy():
-    """Creates archive then distributes it to a web server."""
-    archive_path = do_pack()
-    if archive_path is None:
-        return False
-    return do_deploy(archive_path)
