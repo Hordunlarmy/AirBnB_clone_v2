@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from fabric.api import local
 from datetime import datetime
+import os
 
 
 def do_pack():
@@ -15,6 +16,10 @@ def do_pack():
         )
         local("mkdir versions")
         path = local(f"tar -cvzf versions/{filename} web_static")
+        file_path = f"versions/{filename}"
+        file_size = os.path.getsize(file_path)
+
+        print(f"web_static packed: versions/{filename} -> {file_size}Bytes")
         return path
     except Exception as e:
         return None
