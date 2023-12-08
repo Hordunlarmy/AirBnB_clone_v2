@@ -33,7 +33,7 @@ def do_deploy(archive_path):
             return False
 
         put(archive_path, '/tmp/')
-        filename = archive_path[9:-4]
+        filename = path.basename(archive_path)[:-4]
 
         run(f'sudo mkdir -p /data/web_static/releases/{filename}/')
         run(f'sudo tar -xzf /tmp/{filename}.tgz -C \
@@ -52,9 +52,11 @@ def do_deploy(archive_path):
         return False
 
 
+archive_path = do_pack()
+
+
 def deploy():
     """Creates archive then distributes it to a web server."""
-    archive_path = do_pack()
     if archive_path is None:
         return False
     return do_deploy(archive_path)
