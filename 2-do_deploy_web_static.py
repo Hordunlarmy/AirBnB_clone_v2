@@ -1,84 +1,36 @@
 #!/usr/bin/python3
-"""
-Distributes archived pack to both web servers
-Usage:
-    fab -f 2-do_deploy_web_static.py do_deploy:
-    archive_path=versions/<file_name> -i my_ssh_private_key
-
-Example:
-    fab -f 2-do_deploy_web_static.py do_deploy:
-    archive_path=versions/web_static_20170315003959.tgz -i my_ssh_private_key
-"""
-
-import os.path
+# a Fabric script (based on the file 1-pack_web_static.py)
 from fabric.api import env, put, run
+from datetime import datetime
+from os import path
 
-env.user = "ubuntu"
-env.hosts = ["34.75.10.160", "35.231.86.187"]
+
+env.hosts = ['54.175.122.179', '100.26.230.33']
+# env.user = 'ubuntu'
 
 
 def do_deploy(archive_path):
-    """Distributes an archive to a web server.
-       Returns True if successful and false if not
-    """
-    if os.path.isfile(archive_path) is False:
-        return False
-    fullFile = archive_path.split("/")[-1]
-    folder = fullFile.split(".")[0]
+    """ distributes an archive to your web servers """
 
-    # Uploads archive to /tmp/ directory
-    if put(archive_path, "/tmp/{}".format(fullFile)).failed is True:
-        print("Uploading archive to /tmp/ failed")
-        return False
+    try:
+        if not path.exists(archive_path):
+            return False
 
-    # Delete the archive folder on the server
-    if run("rm -rf /data/web_static/releases/{}/".
-           format(folder)).failed is True:
-        print("Deleting folder with archive(if already exists) failed")
-        return False
+        put(archive_path, '/tmp/')
+        filename = archive_path[9:-4]
 
-    # Create a new archive folder
-    if run("mkdir -p /data/web_static/releases/{}/".
-           format(folder)).failed is True:
-        print("Creating new archive folder failed")
-        return False
+        run(f'sudo mkdir -p /data/web_static/releases/{filename}/')
+        run(f'sudo tar -xzf /tmp/{filename}.tgz -C \
+                /data/web_static/releases/{filename}/')
+        run(f'sudo rm /tmp/{filename}.tgz')
+        run(f'sudo mv /data/web_static/releases/{filename}/web_static/* \
+                /data/web_static/releases/{filename}/')
+        run(f'sudo rm -rf /data/web_static/releases/{filename}/web_static')
+        run(f'sudo rm -rf /data/web_static/current')
+        run(f'sudo ln -sf /data/web_static/releases/{filename}/ \
+                /data/web_static/current')
 
-    # Uncompress archive to /data/web_static/current/ directory
-    if run("tar -xzf /tmp/{} -C /data/web_static/releases/{}/".
-           format(fullFile, folder)).failed is True:
-        print("Uncompressing archive to failed")
+        print("New version deployed!")
+        return True
+    except Exception as e:
         return False
-
-    # Deletes latest archive from the server
-    if run("rm /tmp/{}".format(fullFile)).failed is True:
-        print("Deleting archive from /tmp/ directory dailed")
-        return False
-
-    # Move folder from web_static to its parent folder,to expose the index
-    # files outsite the /we_static path
-    if run("mv /data/web_static/releases/{}/web_static/* "
-           "/data/web_static/releases/{}/".
-           format(folder, folder)).failed is True:
-        print("Moving content to archive folder before deletion failed")
-        return False
-
-    # Delete the empty web_static file, as its content have been moved to
-    # its parent directory
-    if run("rm -rf /data/web_static/releases/{}/web_static".
-           format(folder)).failed is True:
-        print("Deleting web_static folder failed")
-        return False
-
-    # Delete current folder being served (the symbolic link)
-    if run("rm -rf /data/web_static/current").failed is True:
-        print("Deleting 'current' folder failed")
-        return False
-
-    # Create new symbolic link on web server linked to new code version
-    if run("ln -s /data/web_static/releases/{}/ /data/web_static/current".
-           format(folder)).failed is True:
-        print("Creating new symbolic link to new code version failed")
-        return False
-
-    print("New version deployed!")
-    return True
