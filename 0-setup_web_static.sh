@@ -13,6 +13,7 @@ config_content="
 server{
     listen 80 default_server;
     listen [::]:80 default_server;
+    add_header X-Served-By $HOSTNAME;
 
     server_name _;
 
