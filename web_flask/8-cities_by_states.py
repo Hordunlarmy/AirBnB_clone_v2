@@ -70,6 +70,12 @@ def number_odd_or_even(n):
     return render_template('6-number_odd_or_even.html', n=n, num_type=num_type)
 
 
+@app.teardown_appcontext
+def teardown(self):
+    """Method to remove current SQLAlchemy Session"""
+    storage.close()
+
+
 @app.route("/states_list", strict_slashes=False)
 def get_states():
     """
@@ -77,12 +83,6 @@ def get_states():
     """
     states = storage.all()
     return render_template('7-states_list.html', states=states)
-
-
-@app.teardown_appcontext
-def teardown(self):
-    """Method to remove current SQLAlchemy Session"""
-    storage.close()
 
 
 @app.route('/cities_by_states', strict_slashes=False)
