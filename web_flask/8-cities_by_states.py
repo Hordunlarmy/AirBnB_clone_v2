@@ -76,7 +76,6 @@ def get_states():
     List states
     """
     states = storage.all()
-    print(states)
     return render_template('7-states_list.html', states=states)
 
 
@@ -94,4 +93,4 @@ def states_and_cities():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port="5000", debug=True)
+    app.run(host="0.0.0.0", port="5000")
